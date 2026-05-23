@@ -1,0 +1,18 @@
+[
+  {"name": "Aji Picante Tradicional", "description": "Aji picante elaborado con receta tradicional de la region", "price": 8500, "category": "ajies", "image": "/images/products/aji-picante.jpg", "stock": 50, "unit": "200ml"},
+  {"name": "Aji Suave Casero", "description": "Aji de sabor suave ideal para toda la familia", "price": 7500, "category": "ajies", "image": "/images/products/aji-suave.jpg", "stock": 45, "unit": "200ml"},
+  {"name": "Aji Habanero", "description": "Aji extra picante para los amantes del picor intenso", "price": 9500, "category": "ajies", "image": "/images/products/aji-habanero.jpg", "stock": 30, "unit": "150ml"},
+  {"name": "Aji de Maracuya", "description": "Fusion unica de picante con el dulzor del maracuya", "price": 10000, "category": "ajies", "image": "/images/products/aji-maracuya.jpg", "stock": 25, "unit": "200ml"},
+  {"name": "Encurtido Mixto", "description": "Mezcla de vegetales encurtidos en vinagre artesanal", "price": 12000, "category": "encurtidos", "image": "/images/products/encurtido-mixto.jpg", "stock": 40, "unit": "350g"},
+  {"name": "Cebollitas Encurtidas", "description": "Cebollitas perla en vinagre con especias", "price": 9000, "category": "encurtidos", "image": "/images/products/cebollitas.jpg", "stock": 35, "unit": "300g"},
+  {"name": "Pepinillos Artesanales", "description": "Pepinillos crujientes en salmuera tradicional", "price": 8500, "category": "encurtidos", "image": "/images/products/pepinillos.jpg", "stock": 50, "unit": "350g"},
+  {"name": "Ajies Encurtidos", "description": "Ajies frescos conservados en vinagre de frutas", "price": 11000, "category": "encurtidos", "image": "/images/products/ajies-encurtidos.jpg", "stock": 28, "unit": "300g"},
+  {"name": "Mermelada de Fresa", "description": "Mermelada artesanal de fresas frescas de la region", "price": 14000, "category": "mermeladas", "image": "/images/products/mermelada-fresa.jpg", "stock": 60, "unit": "250g"},
+  {"name": "Mermelada de Mora", "description": "Deliciosa mermelada de moras silvestres", "price": 14500, "category": "mermeladas", "image": "/images/products/mermelada-mora.jpg", "stock": 55, "unit": "250g"},
+  {"name": "Mermelada de Naranja", "description": "Mermelada citrica con trozos de naranja", "price": 13500, "category": "mermeladas", "image": "/images/products/mermelada-naranja.jpg", "stock": 45, "unit": "250g"},
+  {"name": "Mermelada de Pina", "description": "Mermelada tropical de pina madura", "price": 13000, "category": "mermeladas", "image": "/images/products/mermelada-pina.jpg", "stock": 40, "unit": "250g"},
+  {"name": "Salsa BBQ Ahumada", "description": "Salsa barbecue con toque ahumado artesanal", "price": 11500, "category": "salsas", "image": "/images/products/salsa-bbq.jpg", "stock": 35, "unit": "300ml"},
+  {"name": "Salsa de Tomate Casera", "description": "Salsa de tomate natural sin conservantes", "price": 8000, "category": "salsas", "image": "/images/products/salsa-tomate.jpg", "stock": 70, "unit": "350ml"},
+  {"name": "Salsa Chimichurri", "description": "Chimichurri fresco con hierbas de la huerta", "price": 10500, "category": "salsas", "image": "/images/products/chimichurri.jpg", "stock": 30, "unit": "200ml"},
+  {"name": "Salsa de Mango", "description": "Salsa agridulce de mango para carnes y ensaladas", "price": 12000, "category": "salsas", "image": "/images/products/salsa-mango.jpg", "stock": 25, "unit": "250ml"}
+]

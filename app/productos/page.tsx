@@ -1,166 +1,77 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { ShoppingCart, Flame, Citrus, ArrowLeft, Menu, X } from "lucide-react"
+import { ShoppingCart, ArrowLeft, Menu, X, Loader2 } from "lucide-react"
 
-type Category = "all" | "ajies" | "encurtidos" | "mermeladas" | "salsas"
+interface Product {
+  _id: string
+  name: string
+  description: string
+  price: number
+  category: "ajies" | "encurtidos" | "mermeladas" | "salsas"
+  image: string
+  inStock: boolean
+}
+
+type Category = "todos" | "ajies" | "encurtidos" | "mermeladas" | "salsas"
 
 const categories: { id: Category; label: string }[] = [
-  { id: "all", label: "Todos" },
+  { id: "todos", label: "Todos" },
   { id: "ajies", label: "Ajies" },
   { id: "encurtidos", label: "Encurtidos" },
   { id: "mermeladas", label: "Mermeladas" },
   { id: "salsas", label: "Salsas" },
 ]
 
-const products = [
-  {
-    id: 1,
-    name: "Aji Picante Tradicional",
-    category: "ajies" as Category,
-    price: 8500,
-    description: "Aji preparado con receta tradicional, picante y lleno de sabor.",
-    badge: "Mas Vendido",
-    icon: Flame,
-  },
-  {
-    id: 2,
-    name: "Aji Suave",
-    category: "ajies" as Category,
-    price: 7500,
-    description: "Perfecto para quienes prefieren un toque suave de picante.",
-    icon: Flame,
-  },
-  {
-    id: 3,
-    name: "Aji Extra Picante",
-    category: "ajies" as Category,
-    price: 9000,
-    description: "Para los amantes del picante intenso y autentico.",
-    badge: "Nuevo",
-    icon: Flame,
-  },
-  {
-    id: 4,
-    name: "Aji con Hierbas",
-    category: "ajies" as Category,
-    price: 8000,
-    description: "Combinacion unica de aji con hierbas aromaticas.",
-    icon: Flame,
-  },
-  {
-    id: 5,
-    name: "Encurtido de Verduras Mixtas",
-    category: "encurtidos" as Category,
-    price: 12000,
-    description: "Variedad de verduras frescas encurtidas en vinagre especiado.",
-    badge: "Popular",
-    icon: Citrus,
-  },
-  {
-    id: 6,
-    name: "Encurtido de Cebolla",
-    category: "encurtidos" as Category,
-    price: 9000,
-    description: "Cebollas crujientes con un toque de especias naturales.",
-    icon: Citrus,
-  },
-  {
-    id: 7,
-    name: "Encurtido de Pepinillos",
-    category: "encurtidos" as Category,
-    price: 10000,
-    description: "Pepinillos frescos con el balance perfecto de acidez.",
-    icon: Citrus,
-  },
-  {
-    id: 8,
-    name: "Encurtido de Zanahoria",
-    category: "encurtidos" as Category,
-    price: 9500,
-    description: "Zanahorias crujientes en vinagre con especias.",
-    icon: Citrus,
-  },
-  {
-    id: 9,
-    name: "Mermelada de Mango",
-    category: "mermeladas" as Category,
-    price: 15000,
-    description: "Dulce mermelada elaborada con mangos maduros seleccionados.",
-    badge: "Favorito",
-    icon: Citrus,
-  },
-  {
-    id: 10,
-    name: "Mermelada de Fresa",
-    category: "mermeladas" as Category,
-    price: 14000,
-    description: "Fresas frescas convertidas en una deliciosa mermelada casera.",
-    icon: Citrus,
-  },
-  {
-    id: 11,
-    name: "Mermelada de Naranja",
-    category: "mermeladas" as Category,
-    price: 13500,
-    description: "Citrica y refrescante, perfecta para el desayuno.",
-    icon: Citrus,
-  },
-  {
-    id: 12,
-    name: "Mermelada de Guayaba",
-    category: "mermeladas" as Category,
-    price: 14500,
-    description: "Sabor tropical autentico de guayaba madura.",
-    badge: "Nuevo",
-    icon: Citrus,
-  },
-  {
-    id: 13,
-    name: "Salsa BBQ Artesanal",
-    category: "salsas" as Category,
-    price: 11000,
-    description: "Salsa ahumada con toques dulces, ideal para carnes.",
-    icon: Flame,
-  },
-  {
-    id: 14,
-    name: "Salsa de Tomate Casera",
-    category: "salsas" as Category,
-    price: 10000,
-    description: "Tomates frescos cocinados con hierbas aromaticas.",
-    badge: "Organico",
-    icon: Citrus,
-  },
-  {
-    id: 15,
-    name: "Salsa Picante Especial",
-    category: "salsas" as Category,
-    price: 11500,
-    description: "Mezcla de chiles con el nivel perfecto de picante.",
-    icon: Flame,
-  },
-  {
-    id: 16,
-    name: "Salsa de Ajo",
-    category: "salsas" as Category,
-    price: 10500,
-    description: "Cremosa salsa de ajo para acompanar cualquier plato.",
-    icon: Citrus,
-  },
-]
-
 export default function ProductosPage() {
-  const [activeCategory, setActiveCategory] = useState<Category>("all")
+  const [activeCategory, setActiveCategory] = useState<Category>("todos")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const filteredProducts = activeCategory === "all"
-    ? products
-    : products.filter((p) => p.category === activeCategory)
+  useEffect(() => {
+    fetchProducts()
+  }, [activeCategory])
+
+  const fetchProducts = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const url =
+        activeCategory === "todos"
+          ? "/api/products"
+          : `/api/products?category=${activeCategory}`
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error("Error al cargar los productos")
+      }
+      const data = await response.json()
+      setProducts(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error desconocido")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const seedProducts = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch("/api/products/seed", { method: "POST" })
+      if (response.ok) {
+        fetchProducts()
+      } else {
+        setError("Error al cargar productos de prueba")
+      }
+    } catch {
+      setError("Error al conectar con la base de datos")
+    }
+  }
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-CO", {
@@ -262,48 +173,98 @@ export default function ProductosPage() {
             ))}
           </div>
 
-          {/* Grid de productos 4x4 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <Card
-                key={product.id}
-                className="group bg-card border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300 overflow-hidden"
+          {/* Estado de carga */}
+          {loading && (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-3 text-muted-foreground">Cargando productos...</span>
+            </div>
+          )}
+
+          {/* Error */}
+          {error && !loading && (
+            <div className="text-center py-20">
+              <p className="text-destructive mb-4">{error}</p>
+              <p className="text-muted-foreground mb-6">
+                Asegurate de que MongoDB este corriendo en localhost:27017
+              </p>
+              <Button onClick={fetchProducts} variant="outline">
+                Reintentar
+              </Button>
+            </div>
+          )}
+
+          {/* Sin productos */}
+          {!loading && !error && products.length === 0 && (
+            <div className="text-center py-20">
+              <p className="text-muted-foreground mb-6">
+                No hay productos disponibles. Haz clic en el boton para cargar productos de prueba.
+              </p>
+              <Button
+                onClick={seedProducts}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
-                <CardContent className="p-5">
-                  <div className="relative mb-4">
-                    <div className="w-full aspect-square bg-secondary rounded-xl flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                      <product.icon className="h-16 w-16 text-primary/60 group-hover:text-primary transition-colors" />
-                    </div>
-                    {product.badge && (
-                      <span className="absolute top-2 right-2 bg-accent text-accent-foreground text-xs font-semibold px-2 py-1 rounded-full">
-                        {product.badge}
-                      </span>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                      {categories.find((c) => c.id === product.category)?.label}
-                    </p>
-                    <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                      {product.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {product.description}
-                    </p>
-                  </div>
-                </CardContent>
-                <CardFooter className="p-5 pt-0 flex items-center justify-between">
-                  <p className="text-lg font-bold text-primary">
-                    {formatPrice(product.price)}
-                  </p>
-                  <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1">
-                    <ShoppingCart className="h-4 w-4" />
-                    Agregar
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+                Cargar Productos de Prueba
+              </Button>
+            </div>
+          )}
+
+          {/* Grid de productos 4x4 */}
+          {!loading && !error && products.length > 0 && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {products.map((product) => (
+                  <Card
+                    key={product._id}
+                    className="group bg-card border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300 overflow-hidden"
+                  >
+                    <CardContent className="p-5">
+                      <div className="relative mb-4">
+                        <div className="w-full aspect-square bg-secondary rounded-xl flex items-center justify-center overflow-hidden">
+                          <Image
+                            src={product.image}
+                            alt={product.name}
+                            width={200}
+                            height={200}
+                            className="object-cover group-hover:scale-105 transition-transform"
+                          />
+                        </div>
+                        <span className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs font-semibold px-2 py-1 rounded-full capitalize">
+                          {product.category}
+                        </span>
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                          {product.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {product.description}
+                        </p>
+                      </div>
+                    </CardContent>
+                    <CardFooter className="p-5 pt-0 flex items-center justify-between">
+                      <p className="text-lg font-bold text-primary">
+                        {formatPrice(product.price)}
+                      </p>
+                      <Button 
+                        size="sm" 
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1"
+                        disabled={!product.inStock}
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                        {product.inStock ? "Agregar" : "Agotado"}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+
+              <p className="text-center text-muted-foreground mt-8">
+                Mostrando {products.length} producto{products.length !== 1 ? "s" : ""}
+                {activeCategory !== "todos" && ` en ${activeCategory}`}
+              </p>
+            </>
+          )}
         </div>
       </div>
 
