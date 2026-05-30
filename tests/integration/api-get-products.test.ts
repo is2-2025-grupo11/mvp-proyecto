@@ -65,11 +65,13 @@ describe('API Integration: GET /api/products', () => {
     const mongoUri = mongoServer.getUri()
     await mongoose.connect(mongoUri)
     Product = mongoose.model('ProductIntegration', ProductSchema)
-  })
+  }, 60000) // Timeout de 60 segundos para descargar MongoDB en memoria
 
   afterAll(async () => {
     await mongoose.disconnect()
-    await mongoServer.stop()
+    if (mongoServer) {
+      await mongoServer.stop()
+    }
   })
 
   beforeEach(async () => {

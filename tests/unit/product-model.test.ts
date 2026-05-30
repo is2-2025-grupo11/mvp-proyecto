@@ -60,11 +60,13 @@ describe('Modelo Product - Validaciones', () => {
     const mongoUri = mongoServer.getUri()
     await mongoose.connect(mongoUri)
     ProductModel = mongoose.model('ProductTest', ProductSchema)
-  })
+  }, 60000) // Timeout de 60 segundos para descargar MongoDB en memoria
 
   afterAll(async () => {
     await mongoose.disconnect()
-    await mongoServer.stop()
+    if (mongoServer) {
+      await mongoServer.stop()
+    }
   })
 
   it('debe crear un producto valido con todos los campos requeridos', async () => {
