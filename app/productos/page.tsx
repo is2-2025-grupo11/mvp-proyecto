@@ -5,7 +5,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { ShoppingCart, ArrowLeft, Menu, X, Loader2 } from "lucide-react"
+import { ShoppingCart, ArrowLeft, Menu, X, Loader2, Check } from "lucide-react"
+import { useCart } from "@/components/cart-provider"
+import { CartButton } from "@/components/cart-button"
 
 interface Product {
   _id: string
@@ -33,6 +35,9 @@ export default function ProductosPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [addingToCart, setAddingToCart] = useState<string | null>(null)
+  const [addedToCart, setAddedToCart] = useState<string | null>(null)
+  const { addItem } = useCart()
 
   useEffect(() => {
     fetchProducts()
@@ -73,6 +78,24 @@ export default function ProductosPage() {
     }
   }
 
+  const handleAddToCart = async (product: Product) => {
+    setAddingToCart(product._id)
+    try {
+      await addItem({
+        productId: product._id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+      })
+      setAddedToCart(product._id)
+      setTimeout(() => setAddedToCart(null), 2000)
+    } catch (error) {
+      console.error("Error adding to cart:", error)
+    } finally {
+      setAddingToCart(null)
+    }
+  }
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-CO", {
       style: "currency",
@@ -109,19 +132,23 @@ export default function ProductosPage() {
                 <ArrowLeft className="h-4 w-4" />
                 Volver al Inicio
               </Link>
+              <CartButton />
             </nav>
 
-            <button
-              className="md:hidden p-2"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? (
-                <X className="h-6 w-6 text-foreground" />
-              ) : (
-                <Menu className="h-6 w-6 text-foreground" />
-              )}
-            </button>
+            <div className="flex items-center gap-4 md:hidden">
+              <CartButton />
+              <button
+                className="p-2"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? (
+                  <X className="h-6 w-6 text-foreground" />
+                ) : (
+                  <Menu className="h-6 w-6 text-foreground" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -248,11 +275,27 @@ export default function ProductosPage() {
                       </p>
                       <Button 
                         size="sm" 
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1"
-                        disabled={!product.inStock}
+                        className={`gap-1 min-w-[100px] ${
+                          addedToCart === product._id 
+                            ? "bg-green-600 hover:bg-green-600 text-white" 
+                            : "bg-primary hover:bg-primary/90 text-primary-foreground"
+                        }`}
+                        disabled={!product.inStock || addingToCart === product._id}
+                        onClick={() => handleAddToCart(product)}
                       >
-                        <ShoppingCart className="h-4 w-4" />
-                        {product.inStock ? "Agregar" : "Agotado"}
+                        {addingToCart === product._id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : addedToCart === product._id ? (
+                          <>
+                            <Check className="h-4 w-4" />
+                            Agregado
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart className="h-4 w-4" />
+                            {product.inStock ? "Agregar" : "Agotado"}
+                          </>
+                        )}
                       </Button>
                     </CardFooter>
                   </Card>

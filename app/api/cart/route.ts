@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import connectDB from "@/lib/mongodb"
+import { connectToDatabase } from "@/lib/mongodb"
 import Cart from "@/models/Cart"
 
 // GET - Obtener carrito por sessionId
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    await connectDB()
+    await connectToDatabase()
 
     let cart = await Cart.findOne({ sessionId })
 
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    await connectDB()
+    await connectToDatabase()
 
     let cart = await Cart.findOne({ sessionId })
 
@@ -98,7 +98,7 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    await connectDB()
+    await connectToDatabase()
 
     const cart = await Cart.findOne({ sessionId })
 
@@ -152,7 +152,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    await connectDB()
+    await connectToDatabase()
 
     const cart = await Cart.findOne({ sessionId })
 
