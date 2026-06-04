@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useState } from "react"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { CartButton } from "@/components/cart-button"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -50,6 +51,7 @@ export function Header() {
                 Ver Productos
               </Button>
             </Link>
+            <CartButton />
           </nav>
 
           <button
