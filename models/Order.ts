@@ -91,7 +91,6 @@ const OrderSchema: Schema = new Schema(
       type: String,
       required: true,
       unique: true,
-      index: true,
     },
     items: {
       type: [OrderItemSchema],
@@ -127,13 +126,9 @@ const OrderSchema: Schema = new Schema(
 OrderSchema.pre("save", async function (next) {
   if (!this.orderNumber) {
     const date = new Date()
-    const year = date.getFullYear().toString().slice(-2)
-    const month = (date.getMonth() + 1).toString().padStart(2, "0")
-    const day = date.getDate().toString().padStart(2, "0")
-    const random = Math.floor(Math.random() * 10000)
-      .toString()
-      .padStart(4, "0")
-    this.orderNumber = `ORD-${year}${month}${day}-${random}`
+    const timestamp = date.getTime().toString(36).toUpperCase()
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase()
+    this.orderNumber = `ORD-${timestamp}-${random}`
   }
   next()
 })

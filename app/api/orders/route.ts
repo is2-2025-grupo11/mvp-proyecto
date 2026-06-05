@@ -63,8 +63,14 @@ export async function POST(request: NextRequest) {
 
     await connectToDatabase()
 
+    // Generar orderNumber manualmente para evitar colisiones
+    const timestamp = Date.now().toString(36).toUpperCase()
+    const random = Math.random().toString(36).substring(2, 8).toUpperCase()
+    const orderNumber = `ORD-${timestamp}-${random}`
+
     // Crear orden directamente con los items enviados
     const order = new Order({
+      orderNumber,
       items: items.map((item: { productId: string; name: string; price: number; quantity: number; image: string }) => ({
         productId: item.productId,
         name: item.name,
@@ -89,8 +95,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(order, { status: 201 })
   } catch (error) {
     console.error("Error al crear orden:", error)
+    
+    // Manejar error de duplicado
+    if (error instanceof Error && error.message.includes("duplicate key")) {
+      return NextResponse.json(
+        { error: "Error de duplicado, intenta de nuevo" },
+        { status: 409 }
+      )
+    }
+    
+    const errorMessage = error instanceof Error ? error.message : "Error desconocido"
     return NextResponse.json(
-      { error: "Error al crear la orden" },
+      { error: `Error al crear la orden: ${errorMessage}` },
       { status: 500 }
     )
   }
