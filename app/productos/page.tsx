@@ -78,22 +78,19 @@ export default function ProductosPage() {
     }
   }
 
-  const handleAddToCart = async (product: Product) => {
+  const handleAddToCart = (product: Product) => {
     setAddingToCart(product._id)
-    try {
-      await addItem({
-        productId: product._id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-      })
-      setAddedToCart(product._id)
-      setTimeout(() => setAddedToCart(null), 2000)
-    } catch (error) {
-      console.error("Error adding to cart:", error)
-    } finally {
+    addItem({
+      productId: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+    })
+    setAddedToCart(product._id)
+    setTimeout(() => {
+      setAddedToCart(null)
       setAddingToCart(null)
-    }
+    }, 1500)
   }
 
   const formatPrice = (price: number) => {

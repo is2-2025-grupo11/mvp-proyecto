@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
-import { useCart, getSessionId } from "@/components/cart-provider"
+import { useCart } from "@/components/cart-provider"
 
 interface CustomerForm {
   name: string
@@ -100,14 +100,19 @@ export default function CheckoutPage() {
     setErrorMessage("")
 
     try {
-      const sessionId = getSessionId()
-
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sessionId,
+          items: items.map(item => ({
+            productId: item.productId,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image,
+          })),
           customer: formData,
+          total: total,
         }),
       })
 

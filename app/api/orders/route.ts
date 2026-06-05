@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import connectDB from "@/lib/mongodb"
+import { connectToDatabase } from "@/lib/mongodb"
 import Order from "@/models/Order"
-import Cart from "@/models/Cart"
 
 // GET - Obtener ordenes (filtrar por email opcional)
 export async function GET(request: NextRequest) {
@@ -9,7 +8,7 @@ export async function GET(request: NextRequest) {
     const email = request.nextUrl.searchParams.get("email")
     const orderNumber = request.nextUrl.searchParams.get("orderNumber")
 
-    await connectDB()
+    await connectToDatabase()
 
     let query = {}
 
@@ -35,11 +34,18 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { sessionId, customer } = body
+    const { items, customer, total } = body
 
-    if (!sessionId || !customer) {
+    if (!items || items.length === 0) {
       return NextResponse.json(
-        { error: "sessionId y customer son requeridos" },
+        { error: "El carrito esta vacio" },
+        { status: 400 }
+      )
+    }
+
+    if (!customer) {
+      return NextResponse.json(
+        { error: "La informacion del cliente es requerida" },
         { status: 400 }
       )
     }
@@ -55,26 +61,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    await connectDB()
+    await connectToDatabase()
 
-    // Obtener carrito
-    const cart = await Cart.findOne({ sessionId })
-
-    if (!cart || cart.items.length === 0) {
-      return NextResponse.json(
-        { error: "El carrito esta vacio" },
-        { status: 400 }
-      )
-    }
-
-    // Crear orden
+    // Crear orden directamente con los items enviados
     const order = new Order({
-      items: cart.items.map((item) => ({
+      items: items.map((item: { productId: string; name: string; price: number; quantity: number; image: string }) => ({
         productId: item.productId,
         name: item.name,
         price: item.price,
         quantity: item.quantity,
-        image: item.image,
+        image: item.image || "/placeholder.svg",
       })),
       customer: {
         name: customer.name.trim(),
@@ -84,16 +80,11 @@ export async function POST(request: NextRequest) {
         city: customer.city.trim(),
         notes: customer.notes?.trim() || "",
       },
-      total: cart.total,
+      total: total || items.reduce((sum: number, item: { price: number; quantity: number }) => sum + item.price * item.quantity, 0),
       status: "pending",
     })
 
     await order.save()
-
-    // Vaciar carrito despues de crear la orden
-    cart.items = []
-    cart.total = 0
-    await cart.save()
 
     return NextResponse.json(order, { status: 201 })
   } catch (error) {
@@ -132,7 +123,7 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    await connectDB()
+    await connectToDatabase()
 
     const order = await Order.findOneAndUpdate(
       { orderNumber },
